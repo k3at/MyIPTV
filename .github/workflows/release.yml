@@ -1,0 +1,131 @@
+name: Release
+
+# Publishes a signed APK (and the app bundle) to GitHub Releases.
+#
+# Trigger it by pushing a tag that matches versionName in app/build.gradle.kts:
+#     git tag v1.0.0
+#     git push origin v1.0.0
+#
+# Required repository secrets (Settings -> Secrets and variables -> Actions):
+#     KEYSTORE_BASE64    base64 of keystore/upload-keystore.jks
+#     KEYSTORE_PASSWORD  keystore password
+#     KEY_ALIAS          key alias (upload)
+#     KEY_PASSWORD       key password
+# See RELEASING.md for how to generate these.
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to release (must already exist, e.g. v1.0.0)'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.event.inputs.tag || github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Build and publish
+    runs-on: ubuntu-latest
+    env:
+      KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+      KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+      KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+      KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+
+    steps:
+      - name: Check signing secrets are present
+        run: |
+          missing=""
+          [ -z "$KEYSTORE_BASE64" ]   && missing="$missing KEYSTORE_BASE64"
+          [ -z "$KEYSTORE_PASSWORD" ] && missing="$missing KEYSTORE_PASSWORD"
+          [ -z "$KEY_ALIAS" ]         && missing="$missing KEY_ALIAS"
+          [ -z "$KEY_PASSWORD" ]      && missing="$missing KEY_PASSWORD"
+          if [ -n "$missing" ]; then
+            echo "::error::Missing repository secrets:$missing — see RELEASING.md."
+            echo "Refusing to publish: without them the build falls back to the debug key and would not be installable as an update."
+            exit 1
+          fi
+          echo "All four signing secrets are present."
+
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.inputs.tag || github.ref }}
+
+      - name: Set up JDK
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          # The project builds on JDK 25 locally; AGP 9.4 needs a modern JDK.
+          # If this errors about the Java version, bump to '25' and re-run.
+          java-version: '21'
+          cache: gradle
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v4
+
+      - name: Restore upload keystore
+        run: |
+          mkdir -p keystore
+          printf '%s' "$KEYSTORE_BASE64" | base64 -d > keystore/upload-keystore.jks
+          printf 'storeFile=keystore/upload-keystore.jks\nstorePassword=%s\nkeyAlias=%s\nkeyPassword=%s\n' \
+            "$KEYSTORE_PASSWORD" "$KEY_ALIAS" "$KEY_PASSWORD" > keystore.properties
+          echo "Restored keystore: $(wc -c < keystore/upload-keystore.jks) bytes"
+
+      - name: Verify tag matches versionName
+        run: |
+          VERSION=$(grep -m1 'versionName' app/build.gradle.kts | sed -E 's/.*"([^"]+)".*/\1/')
+          VERSION_CODE=$(grep -m1 'versionCode' app/build.gradle.kts | grep -oE '[0-9]+')
+          REF="${{ github.event.inputs.tag || github.ref_name }}"
+          TAG="${REF#v}"
+          echo "tag=$REF  versionName=$VERSION  versionCode=$VERSION_CODE"
+          if [ "$VERSION" != "$TAG" ]; then
+            echo "::error::Tag '$REF' does not match versionName '$VERSION'. Bump versionName/versionCode in app/build.gradle.kts, commit, then tag."
+            exit 1
+          fi
+          {
+            echo "VERSION=$VERSION"
+            echo "VERSION_CODE=$VERSION_CODE"
+          } >> "$GITHUB_ENV"
+
+      - name: Build signed APK and app bundle
+        run: |
+          chmod +x gradlew
+          ./gradlew :app:assembleRelease :app:bundleRelease --no-daemon --stacktrace
+
+      - name: Collect artefacts
+        run: |
+          mkdir -p dist
+          cp app/build/outputs/apk/release/app-release.apk "dist/MyIPTV-$VERSION.apk"
+          cp app/build/outputs/bundle/release/app-release.aab "dist/MyIPTV-$VERSION.aab"
+          ls -lh dist
+
+      - name: Verify the APK is signed with the upload key
+        run: |
+          APKSIGNER=$(find "${ANDROID_HOME:-$ANDROID_SDK_ROOT}" -type f -name apksigner | sort -V | tail -1)
+          "$APKSIGNER" verify --print-certs "dist/MyIPTV-$VERSION.apk" \
+            | grep -E "Signer #1 certificate (DN|SHA-256)"
+          if "$APKSIGNER" verify --print-certs "dist/MyIPTV-$VERSION.apk" | grep -q "CN=Android Debug"; then
+            echo "::error::APK is signed with the debug key. Check that keystore.properties was written correctly."
+            exit 1
+          fi
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: ${{ github.event.inputs.tag || github.ref_name }}
+          name: MyIPTV ${{ env.VERSION }}
+          files: |
+            dist/*.apk
+            dist/*.aab
+          generate_release_notes: true
+          draft: false
+          make_latest: true

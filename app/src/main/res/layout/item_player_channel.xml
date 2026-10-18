@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Compact channel row for the in-player drawer (list, not grid). -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/pcRoot"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="4dp"
+    android:background="@drawable/bg_channel_item"
+    android:clickable="true"
+    android:focusable="true"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:padding="8dp">
+
+    <ImageView
+        android:id="@+id/pcLogo"
+        android:layout_width="38dp"
+        android:layout_height="38dp"
+        android:background="@drawable/placeholder_channel"
+        android:contentDescription="@string/cd_channel_logo"
+        android:padding="3dp"
+        android:scaleType="fitCenter" />
+
+    <TextView
+        android:id="@+id/pcName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:layout_weight="1"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:textColor="@color/text_primary"
+        android:textSize="14sp" />
+
+    <ImageView
+        android:id="@+id/pcPlaying"
+        android:layout_width="18dp"
+        android:layout_height="18dp"
+        android:layout_marginStart="8dp"
+        android:contentDescription="@string/now_playing"
+        android:src="@drawable/ic_play"
+        android:visibility="gone" />
+</LinearLayout>
