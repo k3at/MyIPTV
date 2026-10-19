@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.myiptv.app.R
 import com.myiptv.app.data.Channel
+import com.myiptv.app.data.ChannelNames
 import com.myiptv.app.databinding.ItemPlayerChannelBinding
 
 class PlayerChannelAdapter(
@@ -34,7 +35,7 @@ class PlayerChannelAdapter(
         val b = holder.binding
         val isCurrent = item.id == currentId
 
-        b.pcName.text = item.name
+        b.pcName.text = ChannelNames.display(item.name)
         b.pcPlaying.visibility = if (isCurrent) View.VISIBLE else View.GONE
         b.pcRoot.isSelected = isCurrent
 

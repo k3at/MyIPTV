@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
@@ -13,6 +12,7 @@ import com.myiptv.app.R
 import com.myiptv.app.data.CategoryRow
 import com.myiptv.app.data.Channel
 import com.myiptv.app.data.ChannelIds
+import com.myiptv.app.data.ChannelNames
 import com.myiptv.app.data.ContentType
 import com.myiptv.app.data.Episode
 import com.myiptv.app.databinding.ActivitySeriesBinding
@@ -22,7 +22,7 @@ import kotlinx.coroutines.launch
  * Series detail screen: pick a season, then an episode. Tapping an episode plays
  * it in [PlayerActivity] with the rest of that season as the zap list.
  */
-class SeriesActivity : AppCompatActivity() {
+class SeriesActivity : LocalizedActivity() {
 
     private lateinit var binding: ActivitySeriesBinding
     private lateinit var seasonAdapter: CategoryAdapter
@@ -51,7 +51,7 @@ class SeriesActivity : AppCompatActivity() {
             return
         }
 
-        binding.seriesTitle.text = seriesName
+        binding.seriesTitle.text = ChannelNames.display(seriesName)
         Glide.with(this)
             .load(seriesLogo)
             .placeholder(R.drawable.placeholder_channel)

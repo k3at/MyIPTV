@@ -29,14 +29,19 @@ over old ones. Android TV / Fire TV users can also sideload with
 
 ## ✨ Features
 
-- **In-app setup** — on first launch the app asks for your credentials; both **Xtream Codes** (host + username + password) and **M3U** (playlist URL) are supported. Change them any time from the gear button.
-- **M3U / M3U8 parser** — handles `tvg-logo`, `group-title`, `tvg-name` and the running `#EXTGRP:` directive.
-- **Xtream Codes API** — loads Live channels, Movies (VOD) **and Series** with category names.
-- **Series browsing** — tap a series to pick a **season**, then an episode; episodes play through the same player (Xtream mode).
+- **In-app setup** — on first launch the app asks for your **Xtream Codes** credentials (host + username + password). Change them any time from the gear button.
+- **Multiple panels ("profiles")** — keep several panels side by side, each with its own host, username and password, and switch between them from the chip row in Settings. Add with `+ Add`, remove with `✕`. Favourites and "continue watching" are kept per panel.
+- **Xtream Codes API** — loads Live channels, Movies (VOD) **and Series** with category names; the three catalogues are fetched in parallel.
+- **Any provider, any country** — text is decoded from whatever charset the panel sends (its declared charset, UTF-8, or Windows-1256), so non-Latin channel, category and EPG names come out right instead of as mojibake.
+- **Sort by recently added** — Live, Movies and Series can be ordered by provider order, A–Z or **recently added**; cycle it from the chip in the top bar and the choice is remembered.
+- **Series browsing** — tap a series to pick a **season**, then an episode; episodes play through the same player.
 - **EPG (now / next)** — for live channels the player OSD shows the current programme and what's up next (Xtream `get_short_epg`).
 - **Categories** — "All Channels", "Favorites" and every group from the source.
 - **Live / Movies / Series tabs**, **search**, and **favorites** (long-press a channel, or use the star in the player).
+- **English and العربية** — pick the language in Settings (System default / English / العربية). The whole app is translated — lists, player OSD, EPG row, errors — and the layout mirrors right-to-left in Arabic. On Android 13+ the choice also appears in the system's per-app language settings.
+- **Channel names in Arabic** — while Arabic is selected, a Latin catalogue is shown in Arabic too: known brands get their real name («بي إن سبورت», «إم بي سي», «الجزيرة») and the rest is transliterated («World News HD» → «وورلد نيوز HD»), with numbers and quality tags (4K / HD / SD) left as they are. Names that already arrive in Arabic are never touched, search matches both scripts, and switching back to English restores the provider's own text.
 - **Continue watching** — resumes your last channel from a chip in the toolbar.
+- **Built for big playlists** — the catalogue is cached on disk, so a restart shows your channels immediately and refreshes in the background; filtering runs off the main thread, the lists update in place with `DiffUtil`, and logos decode straight to 16-bit colour, which keeps tens of thousands of channels scrolling smoothly.
 - **Fullscreen player** (Media3/ExoPlayer) with a custom control overlay:
   - **play / pause**, big centre transport, **±10 s seek** and a scrub bar (movies & series),
   - **volume** slider + mute (system music stream, remembered between sessions),
@@ -53,24 +58,27 @@ over old ones. Android TV / Fire TV users can also sideload with
 
 ## 🚀 Configure (inside the app)
 
-On **first launch** the app opens the **Connection** screen automatically. Pick your
-source type and fill in the fields:
+On **first launch** the app opens the **Connection** screen automatically. Enter
+your Xtream Codes details:
 
-**Xtream Codes**
 | Field | Example |
 |---|---|
+| Profiles | the chip row at the top — `+ Add` for another panel, `✕` to remove the selected one |
 | Server URL | `http://your-panel:8080` |
 | Username | `your_username` |
 | Password | `your_password` |
 | Live stream format | `HLS (m3u8)` or `MPEG-TS` |
+| Language | `System default`, `English` or `العربية` |
 
-**M3U Playlist**
-| Field | Example |
-|---|---|
-| Playlist URL | `http://your-panel/get.php?username=...&password=...&type=m3u_plus&output=ts` |
+Tap **Save & continue** and the app loads your catalogue. To change any of it later,
+tap the **gear button** in the top bar — no rebuild required. The language is applied
+the moment it is tapped.
 
-Tap **Save & continue** and the app loads your playlist. To change any of it later,
-tap the **gear button** in the top bar — no rebuild required.
+Each panel is a host with its own username and password, so a household can keep a
+main line and a backup (or two providers) and switch with one press: pick the chip,
+then **Save & continue**. Favourites and the resume point follow the panel, so one
+provider's favourites never appear on another. Upgrading from an earlier version
+turns your existing credentials into the first profile on its own.
 
 - Settings are stored in the app's private `SharedPreferences` on the device.
 - A bare host (e.g. `your-panel:8080`) is accepted; `http://` is added automatically.
@@ -239,19 +247,20 @@ channel** — see the policy caveats and the comparison of alternatives in
 
 ```
 app/src/main/java/com/myiptv/app/
-├── config/AppConfig.kt          ← app constants (UA, timeouts, EPG toggle)
-├── MyIptvApplication.kt         ← shared settings + repository + prefs + play queue
+├── config/AppConfig.kt          ← app constants (UA, timeouts, cache, EPG toggle)
+├── MyIptvApplication.kt         ← shared settings + repository + prefs + play queue + locale
 ├── data/
-│   ├── Models.kt                ← Channel / Episode / EpgEntry / CategoryRow
-│   ├── Settings.kt              ← in-app connection settings (source + credentials)
-│   ├── M3uParser.kt             ← M3U/M3U8 parser
-│   ├── XtreamApi.kt             ← Xtream Codes client
-│   ├── PlaylistRepository.kt    ← load() + in-memory cache
-│   └── Prefs.kt                 ← favorites + last channel
+│   ├── Models.kt                ← Channel / ChannelRow / Episode / EpgEntry / CategoryRow / SortMode / Profile
+│   ├── Settings.kt              ← saved panels (profiles) + the active one
+│   ├── XtreamApi.kt             ← Xtream Codes client (parallel calls, charset detection)
+│   ├── PlaylistRepository.kt    ← load() + in-memory and on-disk cache
+│   ├── ChannelNames.kt          ← Arabic rendering of provider channel names (brands + transliteration)
+│   └── Prefs.kt                 ← per-panel favorites + last channel, plus language + sort mode
 └── ui/
-    ├── MainActivity.kt          ← browse (tabs, categories, search, grid)
-    ├── SettingsActivity.kt      ← first-run setup / change credentials
-    ├── SeriesActivity.kt        ← seasons + episodes (Xtream series)
+    ├── LocalizedActivity.kt     ← base activity: applies the chosen language + RTL
+    ├── MainActivity.kt          ← browse (tabs, categories, search, sort, grid)
+    ├── SettingsActivity.kt      ← panels (add / select / remove) + credentials + language
+    ├── SeriesActivity.kt        ← seasons + episodes
     ├── PlayerActivity.kt        ← playback + drawer + remote keys + EPG
     ├── CategoryAdapter.kt
     ├── ChannelAdapter.kt
@@ -263,6 +272,9 @@ app/src/main/res/
 ├── layout-land/     ← TV / landscape layouts
 ├── drawable/        ← vectors + backgrounds
 ├── drawable-xhdpi/tv_banner.png
+├── values/          ← English strings
+├── values-ar/       ← Arabic strings
+├── xml/locales_config.xml  ← languages offered in the system's per-app language screen
 └── mipmap-*/ic_launcher.png
 ```
 

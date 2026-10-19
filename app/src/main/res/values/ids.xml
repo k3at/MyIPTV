@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Ids for views that are built in code, so they can be addressed like the
+     ones declared in a layout. -->
+<resources>
+    <!-- Every profile chip in the settings row shares this id; the code keeps
+         the views themselves, the id is for tooling and accessibility. -->
+    <item name="profileChip" type="id" />
+</resources>

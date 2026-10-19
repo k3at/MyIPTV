@@ -19,10 +19,29 @@
     <style name="FieldLabel">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_marginBottom">6dp</item>
-        <item name="android:layout_marginTop">12dp</item>
+        <item name="android:layout_marginBottom">3dp</item>
+        <item name="android:layout_marginTop">6dp</item>
         <item name="android:textColor">@color/text_secondary</item>
-        <item name="android:textSize">13sp</item>
+        <item name="android:textSize">12sp</item>
+    </style>
+
+    <!-- Form label that sits on the same line as the controls it describes. -->
+    <style name="FieldLabelInline">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:textColor">@color/text_secondary</item>
+        <item name="android:textSize">12sp</item>
+    </style>
+
+    <!-- Smaller chip than the home screen's tabs: the settings screen has to
+         keep several control rows inside 720p. -->
+    <style name="SettingsChip" parent="TabText">
+        <item name="android:paddingStart">12dp</item>
+        <item name="android:paddingEnd">12dp</item>
+        <item name="android:paddingTop">5dp</item>
+        <item name="android:paddingBottom">5dp</item>
+        <item name="android:textSize">12sp</item>
     </style>
 
     <!-- Text field used on the settings screen. -->
@@ -30,10 +49,10 @@
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:background">@drawable/bg_card</item>
-        <item name="android:padding">12dp</item>
+        <item name="android:padding">8dp</item>
         <item name="android:maxLines">1</item>
         <item name="android:textColor">@color/text_primary</item>
         <item name="android:textColorHint">@color/text_secondary</item>
-        <item name="android:textSize">14sp</item>
+        <item name="android:textSize">13sp</item>
     </style>
 </resources>

@@ -26,8 +26,8 @@ android {
         applicationId = "com.myiptv.app"
         minSdk = 23
         targetSdk = 37
-        versionCode = 2
-        versionName = "1.0.1"
+        versionCode = 4
+        versionName = "2.0.0"
         vectorDrawables.useSupportLibrary = true
     }
 

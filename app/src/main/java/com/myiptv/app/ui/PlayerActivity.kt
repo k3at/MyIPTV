@@ -15,7 +15,6 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.SeekBar
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
@@ -36,9 +35,10 @@ import com.myiptv.app.R
 import com.myiptv.app.config.AppConfig
 import com.myiptv.app.data.Channel
 import com.myiptv.app.data.ChannelIds
+import com.myiptv.app.data.ChannelNames
 import com.myiptv.app.data.ContentType
 import com.myiptv.app.data.EpgEntry
-import com.myiptv.app.data.label
+import com.myiptv.app.data.labelRes
 import com.myiptv.app.databinding.ActivityPlayerBinding
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -54,7 +54,7 @@ import java.util.Locale
  * offer play/pause, seeking, channel zapping, volume, brightness, aspect ratio
  * and playback speed — on both touch screens and TV remotes.
  */
-class PlayerActivity : AppCompatActivity() {
+class PlayerActivity : LocalizedActivity() {
 
     private lateinit var binding: ActivityPlayerBinding
     private lateinit var player: ExoPlayer
@@ -395,11 +395,12 @@ class PlayerActivity : AppCompatActivity() {
     }
 
     private fun updateOverlay(channel: Channel) {
-        binding.playerChannelName.text = channel.name
+        binding.playerChannelName.text = ChannelNames.display(channel.name)
+        val type = getString(channel.type.labelRes)
         binding.playerChannelCat.text = if (channel.category.isNotBlank()) {
-            "${channel.type.label} · ${channel.category}"
+            "$type · ${channel.category}"
         } else {
-            channel.type.label
+            type
         }
         binding.favBtn.setImageResource(
             if (prefs.isFavorite(channel.id)) R.drawable.ic_star else R.drawable.ic_star_border

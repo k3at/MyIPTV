@@ -7,6 +7,13 @@ import androidx.recyclerview.widget.RecyclerView
 import com.myiptv.app.data.CategoryRow
 import com.myiptv.app.databinding.ItemCategoryBinding
 
+/**
+ * Category rail / chip row.
+ *
+ * Category lists are small, but they are rebuilt whenever the tab, the search
+ * text or the favorites change, so selection changes rebind the two affected
+ * rows only instead of the whole rail.
+ */
 class CategoryAdapter(
     private val onClick: (CategoryRow) -> Unit
 ) : RecyclerView.Adapter<CategoryAdapter.ViewHolder>() {
@@ -15,8 +22,12 @@ class CategoryAdapter(
 
     var selectedKey: String? = null
         set(value) {
+            if (field == value) return
+            val previous = items.indexOfFirst { it.key == field }
             field = value
-            notifyDataSetChanged()
+            val next = items.indexOfFirst { it.key == value }
+            if (previous >= 0) notifyItemChanged(previous)
+            if (next >= 0) notifyItemChanged(next)
         }
 
     fun submit(list: List<CategoryRow>) {

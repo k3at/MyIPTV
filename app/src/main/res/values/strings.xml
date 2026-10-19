@@ -6,7 +6,7 @@
     <string name="tab_movies">Movies</string>
     <string name="tab_series">Series</string>
 
-    <string name="search_hint">Search channels…</string>
+    <string name="search_hint">Search…</string>
     <string name="all_channels">All Channels</string>
     <string name="favorites">Favorites</string>
 
@@ -15,6 +15,18 @@
     <string name="error_load">Couldn\'t load the playlist.\nCheck your connection details in Settings, then retry.</string>
     <string name="empty_category">No channels in this category.</string>
     <string name="empty_source">This source has no items for this tab.</string>
+
+    <!-- Content types, used in list rows and the player subtitle. -->
+    <string name="type_live">Live</string>
+    <string name="type_movie">Movie</string>
+    <string name="type_series">Series</string>
+
+    <!-- List ordering -->
+    <string name="sort_chip">Sort: %1$s</string>
+    <string name="sort_provider">Provider order</string>
+    <string name="sort_recent">Recently added</string>
+    <string name="sort_name">Name (A–Z)</string>
+    <string name="cd_sort">Change the sort order</string>
 
     <string name="season_n">Season %1$d</string>
     <string name="error_episodes">Couldn\'t load the episodes.\nCheck your connection and retry.</string>
@@ -25,10 +37,7 @@
 
     <!-- In-app connection settings -->
     <string name="settings_title">Connection</string>
-    <string name="settings_subtitle">Enter your playlist details. They are saved on this device.</string>
-    <string name="settings_source">Source type</string>
-    <string name="settings_xtream">Xtream Codes</string>
-    <string name="settings_m3u">M3U Playlist</string>
+    <string name="settings_subtitle">Enter your Xtream Codes details. They are saved on this device.</string>
     <string name="settings_server">Server URL</string>
     <string name="settings_server_hint">http://host:port</string>
     <string name="settings_username">Username</string>
@@ -38,14 +47,31 @@
     <string name="settings_live_format">Live stream format</string>
     <string name="settings_hls">HLS (m3u8)</string>
     <string name="settings_ts">MPEG-TS</string>
-    <string name="settings_m3u_hint">http://host/get.php?username=…&amp;password=…&amp;type=m3u_plus&amp;output=ts</string>
+
+    <!-- Panels ("profiles"): a host with its own username and password. -->
+    <string name="settings_profiles">Profiles</string>
+    <string name="settings_profile_add">+ Add</string>
+    <string name="settings_profile_new">New</string>
+    <string name="settings_profile_remove_glyph">✕</string>
+    <string name="settings_profile_remove">Remove this profile</string>
+    <string name="settings_profile_remove_title">Remove this profile?</string>
+    <string name="settings_profile_remove_msg">%1$s will be removed from this device. You can add it again at any time.</string>
+    <string name="settings_profile_removed">Profile removed</string>
+    <string name="dlg_remove">Remove</string>
+    <string name="dlg_cancel">Cancel</string>
+
     <string name="settings_save">Save &amp; continue</string>
     <string name="settings_error_fields">Please fill in all the required fields.</string>
     <string name="settings_error_url">That address doesn\'t look right. Use http://host:port</string>
-    <string name="settings_error_m3u">Enter a valid http:// or https:// playlist URL.</string>
     <string name="settings_security_note">Credentials are kept in this app\'s private storage on this device.</string>
     <string name="settings_saved">Settings saved</string>
     <string name="cd_settings">Settings</string>
+
+    <!-- Language -->
+    <string name="settings_language">Language</string>
+    <string name="language_system">System default</string>
+    <string name="language_en">English</string>
+    <string name="language_ar">العربية</string>
 
     <string name="channels">Channels</string>
     <string name="now_playing">Now playing</string>

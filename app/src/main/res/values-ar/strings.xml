@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="tab_live">البث المباشر</string>
+    <string name="tab_movies">الأفلام</string>
+    <string name="tab_series">المسلسلات</string>
+
+    <string name="search_hint">بحث…</string>
+    <string name="all_channels">كل القنوات</string>
+    <string name="favorites">المفضلة</string>
+
+    <string name="retry">إعادة المحاولة</string>
+    <string name="loading_channels">جارٍ تحميل القنوات…</string>
+    <string name="error_load">تعذّر تحميل القائمة.\nتأكد من بيانات الاتصال في الإعدادات ثم أعد المحاولة.</string>
+    <string name="empty_category">لا توجد قنوات في هذا التصنيف.</string>
+    <string name="empty_source">لا يوجد محتوى في هذا المصدر لهذا التبويب.</string>
+
+    <!-- Content types -->
+    <string name="type_live">مباشر</string>
+    <string name="type_movie">فيلم</string>
+    <string name="type_series">مسلسل</string>
+
+    <!-- List ordering -->
+    <string name="sort_chip">الترتيب: %1$s</string>
+    <string name="sort_provider">ترتيب المزوّد</string>
+    <string name="sort_recent">الأحدث إضافة</string>
+    <string name="sort_name">الاسم (أ–ي)</string>
+    <string name="cd_sort">تغيير ترتيب القائمة</string>
+
+    <string name="season_n">الموسم %1$d</string>
+    <string name="error_episodes">تعذّر تحميل الحلقات.\nتأكد من الاتصال ثم أعد المحاولة.</string>
+    <string name="empty_episodes">لا توجد حلقات لهذا المسلسل.</string>
+
+    <string name="epg_now">الآن: %1$s (%2$s–%3$s)</string>
+    <string name="epg_next">بعد ذلك: %1$s (%2$s)</string>
+
+    <!-- In-app connection settings -->
+    <string name="settings_title">الاتصال</string>
+    <string name="settings_subtitle">أدخل بيانات Xtream Codes الخاصة بك. يتم حفظها على هذا الجهاز.</string>
+    <string name="settings_server">عنوان السيرفر</string>
+    <string name="settings_server_hint">http://host:port</string>
+    <string name="settings_username">اسم المستخدم</string>
+    <string name="settings_username_hint">اسم المستخدم</string>
+    <string name="settings_password">كلمة المرور</string>
+    <string name="settings_password_hint">كلمة المرور</string>
+    <string name="settings_live_format">صيغة البث المباشر</string>
+    <string name="settings_hls">HLS (m3u8)</string>
+    <string name="settings_ts">MPEG-TS</string>
+
+    <!-- Panels ("profiles"): a host with its own username and password. -->
+    <string name="settings_profiles">الحسابات</string>
+    <string name="settings_profile_add">+ إضافة</string>
+    <string name="settings_profile_new">حساب جديد</string>
+    <string name="settings_profile_remove_glyph">✕</string>
+    <string name="settings_profile_remove">حذف هذا الحساب</string>
+    <string name="settings_profile_remove_title">حذف هذا الحساب؟</string>
+    <string name="settings_profile_remove_msg">سيتم حذف %1$s من هذا الجهاز. يمكنك إضافته مرة أخرى في أي وقت.</string>
+    <string name="settings_profile_removed">تم حذف الحساب</string>
+    <string name="dlg_remove">حذف</string>
+    <string name="dlg_cancel">إلغاء</string>
+
+    <string name="settings_save">حفظ ومتابعة</string>
+    <string name="settings_error_fields">يُرجى تعبئة جميع الحقول المطلوبة.</string>
+    <string name="settings_error_url">يبدو أن العنوان غير صحيح. استخدم http://host:port</string>
+    <string name="settings_security_note">يتم حفظ بيانات الدخول في التخزين الخاص بالتطبيق على هذا الجهاز.</string>
+    <string name="settings_saved">تم حفظ الإعدادات</string>
+    <string name="cd_settings">الإعدادات</string>
+
+    <!-- Language -->
+    <string name="settings_language">اللغة</string>
+    <string name="language_system">لغة النظام</string>
+    <string name="language_en">English</string>
+    <string name="language_ar">العربية</string>
+
+    <string name="channels">القنوات</string>
+    <string name="now_playing">يُعرض الآن</string>
+    <string name="playback_error">خطأ في التشغيل</string>
+    <string name="resume">متابعة</string>
+    <string name="resume_last">متابعة: %1$s</string>
+
+    <string name="fav_added">أُضيف إلى المفضلة</string>
+    <string name="fav_removed">أُزيل من المفضلة</string>
+
+    <string name="cd_logo">شعار التطبيق</string>
+    <string name="cd_channel_logo">شعار القناة</string>
+    <string name="cd_open_list">فتح قائمة القنوات</string>
+    <string name="cd_prev">القناة السابقة</string>
+    <string name="cd_next">القناة التالية</string>
+    <string name="cd_favorite">إضافة أو إزالة من المفضلة</string>
+    <string name="cd_back">رجوع</string>
+    <string name="cd_play_episode">تشغيل الحلقة</string>
+
+    <!-- Player controls -->
+    <string name="cd_play_pause">تشغيل أو إيقاف مؤقت</string>
+    <string name="cd_rewind">رجوع 10 ثوانٍ</string>
+    <string name="cd_forward">تقديم 10 ثوانٍ</string>
+    <string name="cd_volume">الصوت</string>
+    <string name="cd_brightness">السطوع</string>
+    <string name="cd_mute">كتم الصوت أو إلغاء الكتم</string>
+    <string name="player_aspect">أبعاد الشاشة</string>
+    <string name="player_speed">سرعة التشغيل</string>
+    <string name="player_volume_label">الصوت</string>
+    <string name="player_brightness_label">السطوع</string>
+    <string name="aspect_fit">مناسب</string>
+    <string name="aspect_fill">ملء الشاشة</string>
+    <string name="aspect_zoom">تكبير</string>
+    <string name="live_badge">مباشر</string>
+    <string name="speed_format">%1$s×</string>
+    <string name="volume_format">%1$d%%</string>
+    <string name="muted">صامت</string>
+
+    <plurals name="episode_count">
+        <item quantity="zero">لا حلقات</item>
+        <item quantity="one">حلقة واحدة</item>
+        <item quantity="two">حلقتان</item>
+        <item quantity="few">%1$d حلقات</item>
+        <item quantity="many">%1$d حلقة</item>
+        <item quantity="other">%1$d حلقة</item>
+    </plurals>
+</resources>

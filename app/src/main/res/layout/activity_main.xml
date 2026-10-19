@@ -104,11 +104,31 @@
             style="@style/TabText"
             android:layout_marginStart="8dp"
             android:text="@string/tab_series" />
+    </LinearLayout>
+
+    <!--
+        The sort and resume chips get their own row: they carry localised text
+        (Arabic labels, a channel name in the resume chip) and on a narrow phone
+        in Arabic they used to clip the sort chip off the end of the tab row.
+    -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp">
 
         <View
             android:layout_width="0dp"
             android:layout_height="1dp"
             android:layout_weight="1" />
+
+        <TextView
+            android:id="@+id/sortChip"
+            style="@style/TabText"
+            android:layout_marginEnd="8dp" />
 
         <TextView
             android:id="@+id/resumeChip"
@@ -117,12 +137,15 @@
             android:background="@drawable/bg_chip"
             android:drawableStart="@drawable/ic_play"
             android:drawablePadding="6dp"
+            android:ellipsize="end"
             android:focusable="true"
             android:clickable="true"
+            android:maxWidth="200dp"
             android:paddingStart="12dp"
             android:paddingTop="8dp"
             android:paddingEnd="14dp"
             android:paddingBottom="8dp"
+            android:singleLine="true"
             android:textColor="@color/text_primary"
             android:textSize="13sp"
             android:visibility="gone" />

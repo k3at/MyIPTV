@@ -20,3 +20,6 @@
 *.tmp
 *.bak
 .kotlin/
+
+# Locally collected release artefacts (the workflow builds these in CI)
+/dist/
