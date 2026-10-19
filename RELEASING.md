@@ -69,6 +69,25 @@ Two housekeeping tasks:
 The GitHub runner has no keystore, so `release.yml` restores it from repository
 secrets.
 
+### Preferred: let a script upload them
+
+`KEYSTORE_BASE64` is **3640 characters**, which is slow and error-prone to paste
+by hand — a truncated paste fails the release with a confusing error. This script
+uploads all four values through the GitHub CLI instead:
+
+```powershell
+winget install --id GitHub.cli -e     # one time
+gh auth login                         # one time; sign in through the browser
+powershell -NoProfile -ExecutionPolicy Bypass -File tools\set-github-secrets.ps1
+```
+
+It reads the passwords from `keystore.properties` and the keystore from
+`keystore/upload-keystore.jks`, prints only the *length* of each value (never the
+value), and lists the secrets at the end so you can confirm there are exactly four.
+It also deletes the unused `K3AT` secret if it is still around.
+
+### Manual alternative
+
 **Run the helper — it prints every value you need:**
 
 ```powershell
@@ -101,6 +120,11 @@ Then in GitHub: **Settings → Secrets and variables → Actions → New reposit
 
 Add `-Print` if you also want the base64 echoed to the screen (it is ~3 KB, so it
 goes to the clipboard by default rather than scrolling past).
+
+> ℹ️ The keystore's base64 is **3640 characters** long and decodes to a
+> **2728-byte** JKS. If the release job complains about `KEYSTORE_BASE64`, read its
+> error annotation: it reports the character count it received, so you can tell a
+> truncated paste from a wrong password without reading the whole log.
 
 That command can be re-run any time; it lives in the project as
 `tools/export-keystore-for-ci.ps1`.
@@ -202,6 +226,11 @@ Useful settings for users with a specific device:
 | Symptom | Cause / fix |
 |---------|-------------|
 | `Missing repository secrets: KEYSTORE_BASE64` | Add the secrets from §2. |
+| `KEYSTORE_BASE64: 19 characters pasted … Expected 3640` | The secret holds the wrong value — usually a truncated or partial paste. Re-upload it with §2. |
+| `base64 must be a multiple of 4 characters long` | Same cause: the pasted value is not the full base64. |
+| `KEYSTORE_BASE64 holds N character(s) outside the base64 alphabet` | The value was copied as wrapped console text, from a CRLF file, or from a `-----BEGIN …-----` block. Paste the raw value only. |
+| `keytool cannot open the restored keystore with KEYSTORE_PASSWORD` | `KEYSTORE_PASSWORD` does not match the keystore in `KEYSTORE_BASE64`. Use §2's script so both come from the same source. |
+| `the restored keystore has no entry under the alias in KEY_ALIAS` | `KEY_ALIAS` is wrong. It is `upload` for this project. |
 | `Tag 'v1.0.1' does not match versionName '1.0.0'` | You tagged without bumping `versionName`. Bump it, commit, delete the tag (`git push --delete origin v1.0.1`) and re-tag. |
 | `/usr/bin/env: 'bash\r': No such file or directory` or `./gradlew: Permission denied` | CRLF line endings / lost exec bit. `git update-index --chmod=+x gradlew`. Also add `* text=auto eol=lf` to a `.gitattributes`. |
 | Build fails: `Unsupported class file major version` or a Java-version complaint | Change `java-version` in both workflow files to `'25'` — that is what the project builds with locally. |
