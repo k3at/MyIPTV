@@ -69,20 +69,38 @@ Two housekeeping tasks:
 The GitHub runner has no keystore, so `release.yml` restores it from repository
 secrets.
 
-**Copy the keystore to your clipboard as base64:**
+**Run the helper — it prints every value you need:**
 
 ```powershell
-Set-Clipboard ([Convert]::ToBase64String([IO.File]::ReadAllBytes("keystore\upload-keystore.jks")))
+powershell -NoProfile -ExecutionPolicy Bypass -File tools\export-keystore-for-ci.ps1
+```
+
+It reads the passwords out of `keystore.properties`, copies the base64 keystore to
+your clipboard, and prints a table like this:
+
+```
+ Repository secrets for .github/workflows/release.yml
+ Settings -> Secrets and variables -> Actions -> New repository secret
+
+  NAME               VALUE
+  ---------------- -----
+  KEYSTORE_BASE64    (on your clipboard)
+  KEYSTORE_PASSWORD  …
+  KEY_ALIAS          upload
+  KEY_PASSWORD       …
 ```
 
 Then in GitHub: **Settings → Secrets and variables → Actions → New repository secret**.
 
 | Secret | Value |
 |--------|-------|
-| `KEYSTORE_BASE64` | paste what the command above put on your clipboard |
-| `KEYSTORE_PASSWORD` | your keystore password |
+| `KEYSTORE_BASE64` | already on your clipboard — just paste it |
+| `KEYSTORE_PASSWORD` | printed by the helper |
 | `KEY_ALIAS` | `upload` |
 | `KEY_PASSWORD` | the same password |
+
+Add `-Print` if you also want the base64 echoed to the screen (it is ~3 KB, so it
+goes to the clipboard by default rather than scrolling past).
 
 That command can be re-run any time; it lives in the project as
 `tools/export-keystore-for-ci.ps1`.
