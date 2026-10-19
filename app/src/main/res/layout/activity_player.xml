@@ -86,7 +86,7 @@
             android:layout_height="42dp"
             android:background="@drawable/bg_button"
             android:contentDescription="@string/cd_favorite"
-            android:focusable="false"
+            android:focusable="true"
             android:padding="8dp"
             android:src="@drawable/ic_star_border"
             app:tint="@color/text_primary" />
@@ -215,11 +215,11 @@
                 android:layout_marginStart="12dp"
                 android:layout_marginEnd="12dp"
                 android:layout_weight="1"
-                android:focusable="false"
+                android:focusable="true"
                 android:progressBackgroundTint="@color/divider"
-                android:progressTint="@color/brand_accent"
+                android:progressTint="@color/seek_tint"
                 android:splitTrack="false"
-                android:thumbTint="@color/brand_accent" />
+                android:thumbTint="@color/seek_tint" />
 
             <TextView
                 android:id="@+id/durationText"
@@ -260,7 +260,7 @@
                 android:layout_height="46dp"
                 android:background="@drawable/bg_button"
                 android:contentDescription="@string/cd_prev"
-                android:focusable="false"
+                android:focusable="true"
                 android:padding="10dp"
                 android:src="@drawable/ic_chevron_left"
                 app:tint="@color/text_primary" />
@@ -272,7 +272,7 @@
                 android:layout_marginStart="6dp"
                 android:background="@drawable/bg_button"
                 android:contentDescription="@string/cd_rewind"
-                android:focusable="false"
+                android:focusable="true"
                 android:padding="10dp"
                 android:src="@drawable/ic_rewind"
                 app:tint="@color/text_primary" />
@@ -284,7 +284,7 @@
                 android:layout_marginStart="6dp"
                 android:background="@drawable/bg_button"
                 android:contentDescription="@string/cd_play_pause"
-                android:focusable="false"
+                android:focusable="true"
                 android:padding="12dp"
                 android:src="@drawable/ic_play"
                 app:tint="@color/text_primary" />
@@ -296,7 +296,7 @@
                 android:layout_marginStart="6dp"
                 android:background="@drawable/bg_button"
                 android:contentDescription="@string/cd_forward"
-                android:focusable="false"
+                android:focusable="true"
                 android:padding="10dp"
                 android:src="@drawable/ic_forward"
                 app:tint="@color/text_primary" />
@@ -308,7 +308,7 @@
                 android:layout_marginStart="6dp"
                 android:background="@drawable/bg_button"
                 android:contentDescription="@string/cd_next"
-                android:focusable="false"
+                android:focusable="true"
                 android:padding="10dp"
                 android:src="@drawable/ic_chevron_right"
                 app:tint="@color/text_primary" />
@@ -324,7 +324,7 @@
                 android:layout_height="wrap_content"
                 android:background="@drawable/bg_button"
                 android:contentDescription="@string/player_aspect"
-                android:focusable="false"
+                android:focusable="true"
                 android:minWidth="62dp"
                 android:gravity="center"
                 android:paddingStart="12dp"
@@ -343,7 +343,7 @@
                 android:layout_marginStart="8dp"
                 android:background="@drawable/bg_button"
                 android:contentDescription="@string/player_speed"
-                android:focusable="false"
+                android:focusable="true"
                 android:minWidth="62dp"
                 android:gravity="center"
                 android:paddingStart="12dp"
@@ -361,7 +361,7 @@
                 android:layout_marginStart="8dp"
                 android:background="@drawable/bg_button"
                 android:contentDescription="@string/cd_mute"
-                android:focusable="false"
+                android:focusable="true"
                 android:padding="10dp"
                 android:src="@drawable/ic_volume_up"
                 app:tint="@color/text_primary" />
@@ -373,7 +373,7 @@
                 android:layout_marginStart="8dp"
                 android:background="@drawable/bg_button"
                 android:contentDescription="@string/cd_open_list"
-                android:focusable="false"
+                android:focusable="true"
                 android:padding="10dp"
                 android:src="@drawable/ic_list"
                 app:tint="@color/text_primary" />
@@ -389,6 +389,8 @@
 
             <ImageView
                 android:id="@+id/volumeIcon"
+                android:background="@drawable/bg_button"
+                android:padding="4dp"
                 android:layout_width="26dp"
                 android:layout_height="26dp"
                 android:contentDescription="@string/cd_volume"
@@ -400,11 +402,11 @@
                 android:layout_width="150dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
-                android:focusable="false"
+                android:focusable="true"
                 android:progressBackgroundTint="@color/divider"
-                android:progressTint="@color/brand_accent"
+                android:progressTint="@color/seek_tint"
                 android:splitTrack="false"
-                android:thumbTint="@color/brand_accent" />
+                android:thumbTint="@color/seek_tint" />
 
             <TextView
                 android:id="@+id/volumeValue"
@@ -416,6 +418,8 @@
 
             <ImageView
                 android:id="@+id/brightnessIcon"
+                android:background="@drawable/bg_button"
+                android:padding="4dp"
                 android:layout_width="26dp"
                 android:layout_height="26dp"
                 android:layout_marginStart="24dp"
@@ -428,12 +432,12 @@
                 android:layout_width="150dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
-                android:focusable="false"
+                android:focusable="true"
                 android:max="100"
                 android:progressBackgroundTint="@color/divider"
-                android:progressTint="@color/brand_accent"
+                android:progressTint="@color/seek_tint"
                 android:splitTrack="false"
-                android:thumbTint="@color/brand_accent" />
+                android:thumbTint="@color/seek_tint" />
 
             <TextView
                 android:id="@+id/brightnessValue"

@@ -4,12 +4,14 @@ import android.content.Context
 import android.content.Intent
 import android.content.res.ColorStateList
 import android.media.AudioManager
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.provider.Settings
 import android.view.KeyEvent
 import android.view.View
+import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.SeekBar
 import android.widget.Toast
@@ -140,6 +142,9 @@ class PlayerActivity : AppCompatActivity() {
         applyStoredPreferences()
         playCurrent()
         showOsd(true)
+        // Start with the panel on screen but unfocused: the arrows act as
+        // shortcuts until the user presses OK to step into the controls.
+        setOsdInteractive(false)
     }
 
     // ── Player ──────────────────────────────────────────────────────────
@@ -199,6 +204,12 @@ class PlayerActivity : AppCompatActivity() {
     }
 
     private fun setupControls() {
+        // The oversized centre cluster is a touch affordance; the bottom bar is
+        // the control set the remote drives.
+        binding.centerPlayBtn.isFocusable = false
+        binding.centerRewBtn.isFocusable = false
+        binding.centerFwdBtn.isFocusable = false
+
         // Transport
         binding.playBtn.setOnClickListener { togglePlayPause() }
         binding.centerPlayBtn.setOnClickListener { togglePlayPause() }
@@ -440,6 +451,11 @@ class PlayerActivity : AppCompatActivity() {
 
         if (supportsSeek() && duration > 0) {
             binding.seekBar.max = duration.toInt()
+            // Writing the max resets the step the remote's arrow keys use; keep it
+            // matching the shortcut step so seeking feels the same either way.
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                binding.seekBar.keyProgressIncrement = SEEK_STEP_MS.toInt()
+            }
             binding.seekBar.progress = position.toInt().coerceIn(0, duration.toInt())
             binding.durationText.text = formatTime(duration)
         }
@@ -643,11 +659,14 @@ class PlayerActivity : AppCompatActivity() {
         binding.overlayTop.visibility = if (visible) View.VISIBLE else View.GONE
         binding.centerPanel.visibility = if (visible) View.VISIBLE else View.GONE
         if (visible) {
-            handler.removeCallbacks(hideOsdRunnable)
-            handler.postDelayed(hideOsdRunnable, OSD_TIMEOUT_MS)
+            keepOsdAlive()
             updateProgress()
         } else {
             handler.removeCallbacks(hideOsdRunnable)
+            // Focus has to leave the hidden controls, otherwise the arrows stay
+            // aimed at views nobody can see and the shortcuts never run.
+            if (isRemoteFocused()) currentFocus?.clearFocus()
+            setOsdInteractive(false)
         }
     }
 
@@ -679,6 +698,14 @@ class PlayerActivity : AppCompatActivity() {
 
     // ── Remote / keyboard ───────────────────────────────────────────────
 
+    /**
+     * Every on-screen control is focusable, so a TV remote can actually reach it:
+     * OK shows the panel and lands on play/pause, the arrows move between the
+     * controls (left/right drag a focused slider, including volume and
+     * brightness) and OK presses the focused control. While the panel is down the
+     * arrows keep working as plain shortcuts, which is what you want for
+     * flicking through channels.
+     */
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
         // While the channel drawer is open it owns the D-pad.
         if (binding.channelDrawer.visibility == View.VISIBLE) {
@@ -689,6 +716,15 @@ class PlayerActivity : AppCompatActivity() {
             return super.onKeyDown(keyCode, event)
         }
 
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            if (binding.osd.visibility == View.VISIBLE) {
+                showOsd(false)
+                return true
+            }
+            return super.onKeyDown(keyCode, event)
+        }
+
+        // These mean the same thing whether or not the OSD is on screen.
         when (keyCode) {
             KeyEvent.KEYCODE_VOLUME_UP -> { adjustVolume(1); return true }
             KeyEvent.KEYCODE_VOLUME_DOWN -> { adjustVolume(-1); return true }
@@ -701,7 +737,33 @@ class PlayerActivity : AppCompatActivity() {
             KeyEvent.KEYCODE_MEDIA_PAUSE -> { togglePlayPause(); return true }
 
             KeyEvent.KEYCODE_MENU -> { toggleDrawer(); return true }
+        }
 
+        if (isRemoteFocused()) {
+            when (keyCode) {
+                // The focused control is the one the user means, so press it.
+                // Only keys nothing else consumed get here, and letting them fall
+                // through would toggle playback instead.
+                KeyEvent.KEYCODE_DPAD_CENTER, KeyEvent.KEYCODE_ENTER,
+                KeyEvent.KEYCODE_NUMPAD_ENTER -> {
+                    keepOsdAlive()
+                    currentFocus?.performClick()
+                    return true
+                }
+
+                // Unconsumed arrows bubble out of the focused view, so super does
+                // the moving (and the shared focus helper does the sliding).
+                KeyEvent.KEYCODE_DPAD_UP, KeyEvent.KEYCODE_DPAD_DOWN,
+                KeyEvent.KEYCODE_DPAD_LEFT, KeyEvent.KEYCODE_DPAD_RIGHT -> {
+                    keepOsdAlive()
+                    return super.onKeyDown(keyCode, event)
+                }
+            }
+            return super.onKeyDown(keyCode, event)
+        }
+
+        // OSD down: the arrows are shortcuts.
+        when (keyCode) {
             KeyEvent.KEYCODE_DPAD_UP -> {
                 if (adjustBrightness) adjustBrightness(BRIGHTNESS_STEP) else adjustVolume(1)
                 return true
@@ -715,18 +777,58 @@ class PlayerActivity : AppCompatActivity() {
 
             KeyEvent.KEYCODE_DPAD_CENTER, KeyEvent.KEYCODE_ENTER,
             KeyEvent.KEYCODE_NUMPAD_ENTER, KeyEvent.KEYCODE_SPACE -> {
-                if (binding.osd.visibility == View.VISIBLE) togglePlayPause() else showOsd(true)
+                focusOsd()
                 return true
-            }
-
-            KeyEvent.KEYCODE_BACK -> {
-                if (binding.osd.visibility == View.VISIBLE) {
-                    showOsd(false)
-                    return true
-                }
             }
         }
         return super.onKeyDown(keyCode, event)
+    }
+
+    /** Everything the remote can land on while the OSD is showing. */
+    private val osdControls: List<View> by lazy {
+        listOf(
+            binding.seekBar, binding.prevBtn, binding.rewBtn, binding.playBtn,
+            binding.fwdBtn, binding.nextBtn, binding.aspectBtn, binding.speedBtn,
+            binding.muteBtn, binding.openListBtn, binding.favBtn,
+            binding.volumeIcon, binding.volumeBar,
+            binding.brightnessIcon, binding.brightnessBar
+        )
+    }
+
+    /** True when the remote is steering a control we know how to activate. */
+    private fun isRemoteFocused(): Boolean =
+        binding.playerRetryBtn === currentFocus ||
+            (binding.osd.visibility == View.VISIBLE && osdControls.any { it === currentFocus })
+
+    /**
+     * The panel only becomes focusable once OK asks for it. Until then its
+     * controls stay out of reach of focus search, which is what keeps the arrows
+     * free for the volume/channel shortcuts instead of turning them into menu
+     * navigation the moment the player opens.
+     */
+    private fun setOsdInteractive(interactive: Boolean) {
+        val mode = if (interactive) ViewGroup.FOCUS_AFTER_DESCENDANTS
+        else ViewGroup.FOCUS_BLOCK_DESCENDANTS
+        binding.osd.descendantFocusability = mode
+        binding.overlayTop.descendantFocusability = mode
+        binding.centerPanel.descendantFocusability = mode
+    }
+
+    /** Raises the panel and hands the D-pad to its controls. */
+    private fun focusOsd(attempt: Int = 0) {
+        showOsd(true)
+        setOsdInteractive(true)
+        val took = binding.playBtn.requestFocus() || binding.openListBtn.requestFocus()
+        // A view cannot take focus while the window is in touch mode - an
+        // air-mouse TV box can be sitting in it - and the mode only lifts once the
+        // key press has been handled, so retry over the next few frames.
+        if (!took && attempt < 3) binding.osd.postDelayed({ focusOsd(attempt + 1) }, 120)
+    }
+
+    /** Keeps the panel up while the user is still moving around it. */
+    private fun keepOsdAlive() {
+        handler.removeCallbacks(hideOsdRunnable)
+        handler.postDelayed(hideOsdRunnable, OSD_TIMEOUT_MS)
     }
 
     // ── Lifecycle ───────────────────────────────────────────────────────

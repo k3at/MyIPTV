@@ -44,7 +44,7 @@ over old ones. Android TV / Fire TV users can also sideload with
   - **aspect ratio** cycling — Fit / Fill / Zoom,
   - **playback speed** cycling — 0.5× to 2× (movies & series),
   - channel-list drawer for fast zapping and next/previous channel buttons,
-  - TV remote support: **D-pad centre** plays/pauses, **left/right** seeks or zaps, **up/down** adjusts the volume *or* brightness (audio/video keys), **MENU** opens the channel list, **vol keys** change the volume,
+  - Full TV-remote support: **OK** raises the control panel on play/pause, the **arrows** move between the controls (left/right drag the highlighted slider) and **OK** presses them — so volume, brightness, aspect, speed, mute and the channel list are all reachable without a touchscreen. With the panel down the arrows stay shortcuts (**up/down** volume or brightness, **left/right** seek or zap), **MENU** opens the channel list and the **volume keys** change the volume,
   - HLS (`.m3u8`), progressive MP4 and MPEG-TS stream support.
 - **Android TV ready** — Leanback launcher intent, TV banner, D-pad focus states and remote key handling.
 - **Adaptive layout** — phone (portrait) and TV/landscape layouts share one codebase.
@@ -85,16 +85,29 @@ tap the **gear button** in the top bar — no rebuild required.
 
 | Action | Touch | Remote / keyboard |
 |---|---|---|
-| Play / pause | centre button | `OK` / `Enter` / `Space` / media play-pause |
+| Play / pause | centre button | `OK` twice (see below), media play-pause |
 | Seek ±10 s (movies & series) | ⏪ / ⏩ buttons | D-pad ◀ / ▶ |
 | Zap channel | ‹ / › buttons | D-pad ◀ / ▶ (live), `CH+`/`CH-`, media next/previous |
 | Volume | volume slider | D-pad ▲ / ▼, `Vol+` / `Vol-` |
 | Brightness | brightness slider | tap the ☀ icon, then D-pad ▲ / ▼ |
-| Mute | speaker button | — |
-| Aspect ratio | `Fit` / `Fill` / `Zoom` button | — |
-| Playback speed | `1.0×` button | — |
-| Channel list | list button | `MENU` |
+| Mute | speaker button | focus it, then `OK` |
+| Aspect ratio | `Fit` / `Fill` / `Zoom` button | focus it, then `OK` |
+| Playback speed | `1.0×` button | focus it, then `OK` |
+| Channel list | list button | `MENU`, or focus the list button and press `OK` |
 | Hide the controls | tap the video | `Back` |
+
+**Working the remote.** The player is controlled from two states:
+
+- **Panel down** — the D-pad is a set of shortcuts: ▲/▼ change the volume (or the
+  brightness, for streams with video), ◀/▶ seek or zap channels, `OK` brings the
+  panel back, `MENU` opens the channel list, `Back` leaves the player.
+- **Panel up** — `OK` hands the D-pad to the buttons. The play/pause button is
+  highlighted first; the arrows move the highlight between controls, `OK` presses
+  the highlighted one, and ◀/▶ drag a highlighted slider (so the volume and
+  brightness sliders work from the remote, not just the touchscreen). `Back`
+  dismisses the panel, which also happens by itself a few seconds into playback.
+  Pressing `OK` twice in a row — once to highlight play/pause, once to press it —
+  pauses and resumes.
 
 Volume, brightness, aspect ratio and speed are remembered between sessions.
 Live streams hide the seek bar and speed control (no reliable seekable window).

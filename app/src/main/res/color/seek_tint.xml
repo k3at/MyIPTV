@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Slider tint. The focused slider turns white so that a TV remote user can see
+  which control the D-pad is on: left/right then drag the slider.
+-->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_focused="true" android:color="@color/text_primary" />
+    <item android:color="@color/brand_accent" />
+</selector>

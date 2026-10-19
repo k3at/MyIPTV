@@ -14,6 +14,27 @@ one.
 
 Nothing yet.
 
+## [1.0.1] — 2026-10-19
+
+Published as `MyIPTV-1.0.1.apk`.
+
+### Fixed
+
+- **The TV-box remote can now reach every player control.** Previously the
+  on-screen controls were not focusable, so a remote could only use the built-in
+  shortcuts (volume, channel change) and had no way to touch the volume or
+  brightness sliders, mute, aspect ratio, playback speed or the channel-list
+  button. The controls are now real focus stops:
+
+  - `OK` raises the control panel and lands on play/pause.
+  - The arrows move the focus ring between controls; `OK` presses the focused
+    control; left/right drag a focused slider (volume, brightness, seek).
+  - `Back` dismisses the panel and returns the arrows to the shortcuts, which is
+    also what happens when the panel hides itself a few seconds into playback.
+
+  The custom D-pad shortcuts are unchanged while the panel is down: up/down for
+  volume (or brightness), left/right to seek or zap channels.
+
 ## [1.0.0] — 2026-10-19
 
 First release. Published as `MyIPTV-1.0.0.apk`.
