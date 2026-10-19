@@ -162,13 +162,50 @@ jobs:
 
       - name: Verify the APK is signed with the upload key
         run: |
-          APKSIGNER=$(find "${ANDROID_HOME:-$ANDROID_SDK_ROOT}" -type f -name apksigner | sort -V | tail -1)
-          "$APKSIGNER" verify --print-certs "dist/MyIPTV-$VERSION.apk" \
-            | grep -E "Signer #1 certificate (DN|SHA-256)"
-          if "$APKSIGNER" verify --print-certs "dist/MyIPTV-$VERSION.apk" | grep -q "CN=Android Debug"; then
-            echo "::error::APK is signed with the debug key. Check that keystore.properties was written correctly."
+          set -u
+          APK="dist/MyIPTV-$VERSION.apk"
+          SDK="${ANDROID_HOME:-$ANDROID_SDK_ROOT}"
+          echo "apk        : $APK ($(wc -c < "$APK") bytes)"
+          echo "android sdk: $SDK"
+
+          # Prefer the jar via `java` (always present after setup-java) and
+          # only fall back to the wrapper scripts.
+          APKSIGNER_CMD=""
+          for jar in "$SDK"/build-tools/*/lib/apksigner.jar; do
+            if [ -f "$jar" ]; then APKSIGNER_CMD="java -jar $jar"; fi
+          done
+          if [ -z "$APKSIGNER_CMD" ]; then
+            for exe in "$SDK"/build-tools/*/apksigner; do
+              if [ -x "$exe" ]; then APKSIGNER_CMD="$exe"; fi
+            done
+          fi
+          if [ -z "$APKSIGNER_CMD" ]; then
+            APKSIGNER_CMD="$(command -v apksigner || true)"
+          fi
+
+          if [ -z "$APKSIGNER_CMD" ]; then
+            echo "build-tools installed:"
+            ls -1 "$SDK"/build-tools 2>/dev/null || echo "  (none)"
+            echo "::error::could not find apksigner (neither build-tools/*/lib/apksigner.jar nor build-tools/*/apksigner nor on PATH)."
             exit 1
           fi
+          echo "apksigner  : $APKSIGNER_CMD"
+
+          # `|| true` so a non-zero exit never kills the step before we report.
+          CERTS="$($APKSIGNER_CMD verify --print-certs "$APK" 2>&1 || true)"
+          echo "--- signer certificate ---"
+          printf '%s\n' "$CERTS" | grep -E "Signer #1 certificate (DN|SHA-256)" || true
+          echo "--------------------------"
+
+          if printf '%s\n' "$CERTS" | grep -q "CN=Android Debug"; then
+            echo "::error::APK is signed with the debug key, not the upload key."
+            exit 1
+          fi
+          if ! printf '%s\n' "$CERTS" | grep -q "CN=MyIPTV"; then
+            echo "::error::APK is not signed with the expected upload certificate (CN=MyIPTV)."
+            exit 1
+          fi
+          echo "APK is signed with the upload key."
 
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v3
