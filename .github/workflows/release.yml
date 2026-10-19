@@ -72,6 +72,11 @@ jobs:
       - name: Set up Android SDK
         uses: android-actions/setup-android@v4
 
+      # Every failure below reports the shape of what was actually pasted
+      # (character counts, never the value) as an ::error:: annotation, so a
+      # broken KEYSTORE_BASE64 can be diagnosed without reading the raw log.
+      # For this project's keystore the correct value is 3640 characters long
+      # and decodes to 2728 bytes.
       - name: Restore upload keystore
         run: |
           set -u
@@ -79,38 +84,53 @@ jobs:
 
           RAW_LEN=${#KEYSTORE_BASE64}
           CLEAN=$(printf '%s' "$KEYSTORE_BASE64" | tr -d ' \t\r\n')
-          if [ "$RAW_LEN" -ne "${#CLEAN}" ]; then
-            echo "note: stripped $((RAW_LEN - ${#CLEAN})) whitespace character(s) from KEYSTORE_BASE64"
+          LEN=${#CLEAN}
+          REM=$((LEN % 4))
+          DIAG="KEYSTORE_BASE64: ${RAW_LEN} characters pasted, ${LEN} after stripping whitespace, length%4=${REM}. Expected 3640."
+          echo "$DIAG"
+
+          if [ "$LEN" -eq 0 ]; then
+            echo "::error::KEYSTORE_BASE64 is empty. $DIAG"
+            exit 1
           fi
-          echo "KEYSTORE_BASE64 is ${#CLEAN} base64 characters"
 
           if printf '%s' "$CLEAN" | grep -qE '[^A-Za-z0-9+/=]'; then
-            echo "::error::KEYSTORE_BASE64 contains characters that are not valid base64. Most often this means it was copied as wrapped text from a console window, a file with CRLF line breaks, or a PEM-style block with -----BEGIN ...----- headers. Re-run tools/export-keystore-for-ci.ps1 and paste the value straight from the clipboard with Ctrl+V."
+            BAD=$(printf '%s' "$CLEAN" | tr -d 'A-Za-z0-9+/=' | wc -c | tr -d ' ')
+            echo "::error::KEYSTORE_BASE64 holds $BAD character(s) outside the base64 alphabet, so it is not the raw value (typical of text copied wrapped from a console, a CRLF file, or a PEM-style -----BEGIN block). Re-run tools/export-keystore-for-ci.ps1 and paste from the clipboard. $DIAG"
+            exit 1
+          fi
+
+          if [ "$REM" -ne 0 ]; then
+            echo "::error::base64 must be a multiple of 4 characters long, but this value is not, so it is truncated or padded with extras. $DIAG"
             exit 1
           fi
 
           printf '%s' "$CLEAN" | base64 -d > keystore/upload-keystore.jks
-          SIZE=$(wc -c < keystore/upload-keystore.jks)
+          SIZE=$(wc -c < keystore/upload-keystore.jks | tr -d ' ')
           echo "decoded keystore: $SIZE bytes"
           if [ "$SIZE" -lt 1024 ]; then
-            echo "::error::the decoded keystore is only $SIZE bytes, so the secret is truncated or is not the keystore at all. Expected a couple of KB."
+            echo "::error::the decoded keystore is only $SIZE bytes (expected ~2728), so KEYSTORE_BASE64 is not the keystore file. $DIAG"
             exit 1
           fi
 
           printf 'storeFile=keystore/upload-keystore.jks\nstorePassword=%s\nkeyAlias=%s\nkeyPassword=%s\n' \
             "$KEYSTORE_PASSWORD" "$KEY_ALIAS" "$KEY_PASSWORD" > keystore.properties
 
-          if ! keytool -list -keystore keystore/upload-keystore.jks \
-                 -storepass "$KEYSTORE_PASSWORD" >/dev/null 2>&1; then
-            echo "::error::keytool cannot open the restored keystore, so KEYSTORE_PASSWORD does not match the keystore behind KEYSTORE_BASE64."
-            exit 1
+          if [ -z "$(command -v keytool || true)" ]; then
+            echo "::warning::keytool is not on PATH; skipping the keystore sanity check."
+          else
+            if ! keytool -list -keystore keystore/upload-keystore.jks \
+                   -storepass "$KEYSTORE_PASSWORD" >/dev/null 2>&1; then
+              echo "::error::keytool cannot open the restored keystore with KEYSTORE_PASSWORD, so that secret does not match the keystore behind KEYSTORE_BASE64. $DIAG"
+              exit 1
+            fi
+            if ! keytool -list -keystore keystore/upload-keystore.jks \
+                   -storepass "$KEYSTORE_PASSWORD" -alias "$KEY_ALIAS" >/dev/null 2>&1; then
+              echo "::error::the restored keystore has no entry under the alias in KEY_ALIAS. $DIAG"
+              exit 1
+            fi
           fi
-          if ! keytool -list -keystore keystore/upload-keystore.jks \
-                 -storepass "$KEYSTORE_PASSWORD" -alias "$KEY_ALIAS" >/dev/null 2>&1; then
-            echo "::error::the restored keystore has no entry with alias '$KEY_ALIAS'. Check the KEY_ALIAS secret (expected 'upload')."
-            exit 1
-          fi
-          echo "Restored keystore OK: alias '$KEY_ALIAS' found."
+          echo "Restored keystore OK."
 
       - name: Verify tag matches versionName
         run: |
