@@ -74,11 +74,43 @@ jobs:
 
       - name: Restore upload keystore
         run: |
+          set -u
           mkdir -p keystore
-          printf '%s' "$KEYSTORE_BASE64" | base64 -d > keystore/upload-keystore.jks
+
+          RAW_LEN=${#KEYSTORE_BASE64}
+          CLEAN=$(printf '%s' "$KEYSTORE_BASE64" | tr -d ' \t\r\n')
+          if [ "$RAW_LEN" -ne "${#CLEAN}" ]; then
+            echo "note: stripped $((RAW_LEN - ${#CLEAN})) whitespace character(s) from KEYSTORE_BASE64"
+          fi
+          echo "KEYSTORE_BASE64 is ${#CLEAN} base64 characters"
+
+          if printf '%s' "$CLEAN" | grep -qE '[^A-Za-z0-9+/=]'; then
+            echo "::error::KEYSTORE_BASE64 contains characters that are not valid base64. Most often this means it was copied as wrapped text from a console window, a file with CRLF line breaks, or a PEM-style block with -----BEGIN ...----- headers. Re-run tools/export-keystore-for-ci.ps1 and paste the value straight from the clipboard with Ctrl+V."
+            exit 1
+          fi
+
+          printf '%s' "$CLEAN" | base64 -d > keystore/upload-keystore.jks
+          SIZE=$(wc -c < keystore/upload-keystore.jks)
+          echo "decoded keystore: $SIZE bytes"
+          if [ "$SIZE" -lt 1024 ]; then
+            echo "::error::the decoded keystore is only $SIZE bytes, so the secret is truncated or is not the keystore at all. Expected a couple of KB."
+            exit 1
+          fi
+
           printf 'storeFile=keystore/upload-keystore.jks\nstorePassword=%s\nkeyAlias=%s\nkeyPassword=%s\n' \
             "$KEYSTORE_PASSWORD" "$KEY_ALIAS" "$KEY_PASSWORD" > keystore.properties
-          echo "Restored keystore: $(wc -c < keystore/upload-keystore.jks) bytes"
+
+          if ! keytool -list -keystore keystore/upload-keystore.jks \
+                 -storepass "$KEYSTORE_PASSWORD" >/dev/null 2>&1; then
+            echo "::error::keytool cannot open the restored keystore, so KEYSTORE_PASSWORD does not match the keystore behind KEYSTORE_BASE64."
+            exit 1
+          fi
+          if ! keytool -list -keystore keystore/upload-keystore.jks \
+                 -storepass "$KEYSTORE_PASSWORD" -alias "$KEY_ALIAS" >/dev/null 2>&1; then
+            echo "::error::the restored keystore has no entry with alias '$KEY_ALIAS'. Check the KEY_ALIAS secret (expected 'upload')."
+            exit 1
+          fi
+          echo "Restored keystore OK: alias '$KEY_ALIAS' found."
 
       - name: Verify tag matches versionName
         run: |
