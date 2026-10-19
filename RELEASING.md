@@ -34,13 +34,16 @@ git config --global user.email "you@example.com"
 Create an empty repo on GitHub (no README, no .gitignore — the project already has
 one), then from the project root:
 
+> ✅ Already done for this project: `https://github.com/k3at/MyIPTV` exists and
+> `origin` is configured. Skip to §2 unless you are setting up a fresh clone.
+
 ```powershell
 cd "C:\Users\k3ats\Documents\Default Project\MyIPTV"
 git init -b main
 git add .
 git status          # confirm keystore/ and keystore.properties are NOT listed
 git commit -m "MyIPTV 1.0.0"
-git remote add origin https://github.com/USER/REPO.git
+git remote add origin https://github.com/k3at/MyIPTV.git
 git push -u origin main
 ```
 
@@ -155,7 +158,7 @@ updates outside Play.
 Give users these steps:
 
 1. Install Obtainium (it has a GitHub release of its own).
-2. **Add App →** paste your repo URL, e.g. `https://github.com/USER/REPO`.
+2. **Add App →** paste your repo URL, e.g. `https://github.com/k3at/MyIPTV`.
 3. Leave the defaults (source *GitHub*, it auto-detects the `.apk` asset) and
    confirm.
 4. When a new release is published, Obtainium offers the update.

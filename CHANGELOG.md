@@ -56,5 +56,5 @@ First release. Published as `MyIPTV-1.0.0.apk`.
   sent anywhere except the provider server you configure.
 - The app bundles no content, channels or playlists of any kind.
 
-[Unreleased]: https://github.com/USER/REPO/compare/v1.0.0...HEAD
-[1.0.0]: https://github.com/USER/REPO/releases/tag/v1.0.0
+[Unreleased]: https://github.com/k3at/MyIPTV/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/k3at/MyIPTV/releases/tag/v1.0.0

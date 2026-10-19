@@ -9,14 +9,13 @@ logo and branding** (purple `#7C4DFF` on near-black `#101010`).
 
 ## ⬇️ Download & install
 
-Releases are published on **GitHub Releases** (swap `USER/REPO` for this
-project's repository once it is pushed to GitHub):
+Releases are published on **GitHub Releases**:
 
 | What | Where |
 |------|-------|
-| Latest release | `https://github.com/USER/REPO/releases/latest` |
+| Latest release | https://github.com/k3at/MyIPTV/releases/latest |
 | Direct download | `MyIPTV-<version>.apk` on that page |
-| Automatic updates | [Obtainium](https://github.com/ImranR98/Obtainium) → paste the repo URL |
+| Automatic updates | [Obtainium](https://github.com/ImranR98/Obtainium) → paste `https://github.com/k3at/MyIPTV` |
 
 Every release is signed with the same upload key, so new versions install straight
 over old ones. Android TV / Fire TV users can also sideload with
