@@ -29,7 +29,7 @@
             android:layout_width="38dp"
             android:layout_height="38dp"
             android:contentDescription="@string/cd_logo"
-            android:src="@mipmap/ic_launcher" />
+            android:src="@drawable/app_logo" />
 
         <TextView
             android:id="@+id/appNameTxt"

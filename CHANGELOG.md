@@ -10,6 +10,26 @@ When cutting a release, bump **both** `versionName` and `versionCode` — Androi
 refuses to install an update whose `versionCode` is not higher than the installed
 one.
 
+## [2.0.1] — 2026-10-20
+
+Published as `MyIPTV-2.0.1.apk`.
+
+### Changed
+
+- **New app icon.** The launcher icon is now the app's own logo on a dark navy
+  gradient sampled from the logo's blues, instead of the purple square with a
+  generic play glyph. Android 8+ gets a real **adaptive icon**
+  (`mipmap-anydpi-v26` plus a background and a foreground layer), drawn at a
+  size that survives every launcher mask — circle, squircle or square — without
+  clipping the logo; older versions keep a full-bleed PNG fallback. The logo in
+  the app header and in Settings keeps its previous prominence through a
+  dedicated `app_logo` drawable.
+- **One generator for every asset.** `play-store/generate-art.ps1` now derives
+  the launcher icons, the adaptive layers, the in-app logo, the TV banner and
+  the Play store art (512px icon and both feature graphics) from a single
+  `play-store/logo-source.png`. Replacing that file and re-running the script
+  restyles the whole app and listing; nothing is hand-edited.
+
 ## [2.0.0] — 2026-10-19
 
 Published as `MyIPTV-2.0.0.apk`.

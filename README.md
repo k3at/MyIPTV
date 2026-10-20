@@ -3,7 +3,8 @@
 A lightweight, IBO-Player-style IPTV client. One codebase runs on **Android TV /
 TV boxes** and **Android phones/tablets**. Connection details are entered **in the
 app** (no rebuild needed) and saved on the device, and the app ships with **its own
-logo and branding** (purple `#7C4DFF` on near-black `#101010`).
+logo and branding** - purple `#7C4DFF` accents on near-black `#101010`, and a
+navy launcher icon carrying the app's own logo.
 
 ---
 
@@ -275,7 +276,9 @@ app/src/main/res/
 ├── values/          ← English strings
 ├── values-ar/       ← Arabic strings
 ├── xml/locales_config.xml  ← languages offered in the system's per-app language screen
-└── mipmap-*/ic_launcher.png
+├── drawable-nodpi/                     app_logo.png + adaptive icon layers
+├── mipmap-anydpi-v26/ic_launcher.xml   adaptive icon (API 26+)
+└── mipmap-*/ic_launcher.png            legacy fallback (API <= 25)
 ```
 
 > **Large playlists:** the channel list is handed to the player through the in-memory
@@ -291,8 +294,10 @@ app/src/main/res/
 
 - **App name**: `res/values/strings.xml` → `app_name`, and `AppConfig.APP_NAME`.
 - **Colors**: `res/values/colors.xml` (`brand_primary`, `brand_secondary`, `bg_dark`, …).
-- **Launcher icon / TV banner**: replace the PNGs in `res/mipmap-*` and
-  `res/drawable-xhdpi/tv_banner.png` (320×180).
+- **Launcher icon / TV banner / store art**: drop a square logo at
+  `play-store/logo-source.png` and re-run `play-store/generate-art.ps1`. It regenerates
+  the launcher icons (adaptive + legacy), `res/drawable-nodpi/app_logo.png`,
+  the TV banner and the Play store assets from that one file.
 
 ---
 
